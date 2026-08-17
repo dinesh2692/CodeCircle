@@ -1,0 +1,7 @@
+package com.codecircle.project;
+import org.springframework.http.*; import org.springframework.web.bind.annotation.*; import java.time.Instant; import java.util.*;
+@RestController @RequestMapping("/api/projects") public class ProjectController {final ProjectRepository repo;ProjectController(ProjectRepository r){repo=r;} record Create(String name){} record Save(String code){}
+@GetMapping List<Project> all(java.security.Principal p){return repo.findByOwnerOrderByUpdatedAtDesc(p.getName());}
+@PostMapping ResponseEntity<?> create(@RequestBody Create x,java.security.Principal p){if(x.name()==null||x.name().isBlank()||x.name().length()>80)return ResponseEntity.badRequest().body(Map.of("message","Invalid project name"));Project z=new Project();z.owner=p.getName();z.name=x.name().trim();return ResponseEntity.ok(repo.save(z));}
+@GetMapping("/{id}") ResponseEntity<?> get(@PathVariable Long id,java.security.Principal p){return repo.findByIdAndOwner(id,p.getName()).map(ResponseEntity::ok).orElseGet(()->ResponseEntity.notFound().build());}
+@PutMapping("/{id}") ResponseEntity<?> save(@PathVariable Long id,@RequestBody Save x,java.security.Principal p){if(x.code()==null||x.code().length()>50000)return ResponseEntity.badRequest().body(Map.of("message","Code too large"));return repo.findByIdAndOwner(id,p.getName()).map(z->{z.code=x.code();z.updatedAt=Instant.now();return ResponseEntity.ok(repo.save(z));}).orElseGet(()->ResponseEntity.notFound().build());}}
