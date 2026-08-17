@@ -1,0 +1,1 @@
+package com.codecircle.project; import java.util.*; import org.springframework.data.jpa.repository.JpaRepository; public interface ProjectRepository extends JpaRepository<Project,Long>{List<Project> findByOwnerOrderByUpdatedAtDesc(String owner);Optional<Project> findByIdAndOwner(Long id,String owner);}
