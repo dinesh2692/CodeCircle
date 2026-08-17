@@ -16,7 +16,11 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
   public void afterConnectionEstablished(WebSocketSession s)throws Exception{
     String room=(String)s.getAttributes().get("room"),name=(String)s.getAttributes().get("name");
     names.put(s.getId(),name);
-    rooms.computeIfAbsent(room,x->ConcurrentHashMap.newKeySet()).add(s);
+    Set<WebSocketSession> members=rooms.computeIfAbsent(room,x->ConcurrentHashMap.newKeySet());
+    List<Map<String,String>> existing=new ArrayList<>();
+    for(WebSocketSession p:members) existing.add(Map.of("id",p.getId(),"name",names.getOrDefault(p.getId(),"Coder")));
+    members.add(s);
+    s.sendMessage(new TextMessage(json.writeValueAsString(Map.of("type","room-ready","id",s.getId(),"room",room,"users",existing))));
     broadcast(room,Map.of("type","user-joined","id",s.getId(),"name",name),s);
   }
 
