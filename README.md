@@ -1,6 +1,17 @@
-# CodeCircle
+# CodeCircle IDE
 
-A lightweight Java 21 web application served with the JDK built-in HTTP server and packaged with Docker.
+A real-time collaborative Java coding workspace powered by a dependency-free Java 21 backend.
+
+## Features
+
+- 6-character realtime rooms
+- Live collaborative Java code editing
+- Server-side Java compilation using `javac`
+- Compiler diagnostics displayed in the browser
+- Realtime room chat over WebSocket
+- Browser microphone voice chat using WebRTC + server signaling
+- Participant presence (join/leave)
+- Docker deployment with `PORT` support
 
 ## Run locally
 
@@ -11,6 +22,15 @@ docker run -p 8080:8080 codecircle
 
 Open `http://localhost:8080`.
 
-## Deployment
+## Architecture
 
-The container listens on the `PORT` environment variable and defaults to `8080`, making it suitable for container platforms such as Render, Railway, or Google Cloud Run.
+```text
+Browser
+  ├── HTTP /compile ──> Java backend ──> javac
+  └── WebSocket ──────> room server
+                          ├── code sync
+                          ├── chat
+                          └── WebRTC signaling
+```
+
+Voice media itself is peer-to-peer through WebRTC; the Java server handles room signaling.
